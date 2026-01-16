@@ -10,10 +10,10 @@ if __name__ == '__main__':
     print(f'NVSHMEM directory: {nvshmem_dir}')
 
     # TODO: currently, we only support Hopper architecture, we may add Ampere support later
-    os.environ['TORCH_CUDA_ARCH_LIST'] = '9.0'
+    os.environ['TORCH_CUDA_ARCH_LIST'] = '10.0'
     cxx_flags = ['-O3', '-Wno-deprecated-declarations', '-Wno-unused-variable',
                  '-Wno-sign-compare', '-Wno-reorder', '-Wno-attributes']
-    nvcc_flags = ['-O3', '-Xcompiler', '-O3', '-rdc=true', '--ptxas-options=--register-usage-level=10']
+    nvcc_flags = ['-O3', '-Xcompiler', '-O3', '-rdc=true', '--ptxas-options=--register-usage-level=10', '-gencode=arch=compute_100,code=sm_100']
     include_dirs = ['csrc/', f'{nvshmem_dir}/include']
     sources = ['csrc/deep_ep.cpp',
                'csrc/kernels/runtime.cu', 'csrc/kernels/intranode.cu',
