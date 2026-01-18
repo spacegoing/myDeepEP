@@ -16,6 +16,7 @@ def get_nvshmem_host_lib_name(base_dir):
 
 
 if __name__ == '__main__':
+    arch_list = os.environ['TORCH_CUDA_ARCH_LIST']
     disable_nvshmem = False
     nvshmem_dir = os.getenv('NVSHMEM_DIR', None)
     nvshmem_host_lib = 'libnvshmem_host.so'
@@ -71,8 +72,13 @@ if __name__ == '__main__':
         # CUDA 12 flags
         nvcc_flags.extend(['-rdc=true', '--ptxas-options=--register-usage-level=10'])
 
+        # [PATCH] Force inject 10.0 flags if requested to bypass PyTorch filtering
+        if '10.0' in arch_list:
+            print("Detected 10.0 in TORCH_CUDA_ARCH_LIST, forcing -gencode=arch=compute_100,code=sm_100")
+            nvcc_flags.append('-gencode=arch=compute_100,code=sm_100')
+
     # Disable LD/ST tricks, as some CUDA version does not support `.L1::no_allocate`
-    if os.environ['TORCH_CUDA_ARCH_LIST'].strip() != '9.0':
+    if '9.0' not in arch_list and '10.0' not in arch_list:
         assert int(os.getenv('DISABLE_AGGRESSIVE_PTX_INSTRS', 1)) == 1
         os.environ['DISABLE_AGGRESSIVE_PTX_INSTRS'] = '1'
 
