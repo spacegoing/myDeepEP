@@ -16,7 +16,7 @@ def get_nvshmem_host_lib_name(base_dir):
 
 
 if __name__ == '__main__':
-    arch_list = os.environ['TORCH_CUDA_ARCH_LIST']
+    arch_list = os.environ['TORCH_CUDA_ARCH_LIST'] = os.getenv('TORCH_CUDA_ARCH_LIST', '9.0 10.0')
     disable_nvshmem = False
     nvshmem_dir = os.getenv('NVSHMEM_DIR', None)
     nvshmem_host_lib = 'libnvshmem_host.so'
@@ -67,8 +67,6 @@ if __name__ == '__main__':
         assert disable_nvshmem
     else:
         # Prefer H800 series
-        os.environ['TORCH_CUDA_ARCH_LIST'] = os.getenv('TORCH_CUDA_ARCH_LIST', '9.0')
-
         # CUDA 12 flags
         nvcc_flags.extend(['-rdc=true', '--ptxas-options=--register-usage-level=10'])
 
